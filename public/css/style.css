@@ -99,3 +99,20 @@
   border-style: solid;
   height: 27rem;
 }
+
+#rps-options {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.rps-option {
+  list-style-type: none;
+  flex-grow: 1;
+}
+
+.rps-option > button {
+  width: 100%;
+}

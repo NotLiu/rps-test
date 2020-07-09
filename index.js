@@ -36,14 +36,22 @@ const server = httpServer.listen("8080", function () {
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
-  console.log("a user has connected");
+  var user = {
+    name: [],
+  };
+
   socket.on("username", function (username) {
     socket.username = username;
+    console.log(username + " has connected");
     io.emit("is_online", socket.username + " connected!");
+    user[socket.username] = [];
+    user[socket.username].push(socket.username);
   });
 
   socket.on("disconnect", function (username) {
     io.emit("is_online", socket.username + " disconnected!");
+    console.log(socket.username);
+    delete user[socket.username];
   });
 
   socket.on("chat_message", function (message) {
@@ -51,6 +59,20 @@ io.sockets.on("connection", function (socket) {
       "chat_message",
       "<strong>" + socket.username + "</strong>: " + message
     );
+  });
+
+  socket.on("rps_option", function (option) {
+    if (user[socket.username][1] != true) {
+      io.emit(
+        "chat_message",
+        "<strong>" + socket.username + " chose " + option + "!</strong>"
+      );
+      user[socket.username].push(true);
+      user[socket.username].push(option);
+    } else {
+      console.log(socket.username + " has already chosen!");
+    }
+    console.log(user);
   });
 });
 

@@ -13,6 +13,23 @@ $(function () {
   const username = prompt("Enter a username");
   socket.emit("username", username);
 
+  //rps options
+  //rock
+  $("#rock_but").click(function () {
+    console.log(username + " picked: ROCK");
+    socket.emit("rps_option", "ROCK");
+  });
+  //paper
+  $("#paper_but").click(function () {
+    console.log(username + " picked: PAPER");
+    socket.emit("rps_option", "PAPER");
+  });
+  //scissors
+  $("#scissors_but").click(function () {
+    console.log(username + " picked: SCISSORS");
+    socket.emit("rps_option", "SCISSORS");
+  });
+  //chatbutton
   $("form").submit(function (e) {
     e.preventDefault();
     socket.emit("chat_message", $("#txt").val());
