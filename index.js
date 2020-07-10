@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import http from "http";
 import socketio from "socket.io";
+import { constants } from "buffer";
 
 const app = express();
 const httpServer = http.Server(app);
@@ -33,12 +34,26 @@ const server = httpServer.listen("8080", function () {
   console.log("listening at :8080");
 });
 
+//rps handling
+function rps(choice1, choice2) {
+  if (choice1 - choice2 == -2 || choice1 - choice2 == 1) {
+    return 2;
+  } else if (choice1 - choice2 == -1 || choice1 - choice2 == 2) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
-  var user = {
+  let user = {
+    //name, chosen, choice
     name: [],
   };
+
+  let last_choose = null; // last user that chose a rps option and compares
 
   socket.on("username", function (username) {
     socket.username = username;
@@ -46,6 +61,8 @@ io.sockets.on("connection", function (socket) {
     io.emit("is_online", socket.username + " connected!");
     user[socket.username] = [];
     user[socket.username].push(socket.username);
+    user[socket.username].push(null);
+    user[socket.username].push(null);
   });
 
   socket.on("disconnect", function (username) {
@@ -62,16 +79,72 @@ io.sockets.on("connection", function (socket) {
   });
 
   socket.on("rps_option", function (option) {
+    let optionname = "";
+    if (option == 1) {
+      optionname = "PAPER";
+    } else if (option == 2) {
+      optionname = "ROCK";
+    } else {
+      optionname = "SCISSORS";
+    }
+
     if (user[socket.username][1] != true) {
       io.emit(
         "chat_message",
-        "<strong>" + socket.username + " chose " + option + "!</strong>"
+        "<strong>" + socket.username + " chose " + optionname + "!</strong>"
       );
-      user[socket.username].push(true);
-      user[socket.username].push(option);
+
+      user[socket.username][1] = true;
+      user[socket.username][2] = option;
+
+      if (last_choose == null) {
+        last_choose = socket.username;
+      } else {
+        console.log("ttttttttttttttttttttt" + last_choose);
+        winner = rps(user[last_choose][2], user[socket.username][2]);
+        if (winner == 1) {
+          io.emit(
+            "chat_message",
+            "<strong>" +
+              last_choose +
+              "beats " +
+              socket.username +
+              "by using " +
+              optionname +
+              "</strong>"
+          );
+        } else if (winner == 2) {
+          io.emit(
+            "chat_message",
+            "<strong>" +
+              socket.username +
+              "beats " +
+              last_choose +
+              "by using " +
+              optionname +
+              "</strong>"
+          );
+        } else {
+          io.emit(
+            "chat_message",
+            "<strong>It's a DRAW between " +
+              last_choose +
+              "and" +
+              socket.username +
+              "!</strong>"
+          );
+        }
+
+        //reset after comparing rps
+        user[last_choose][1] = false;
+        user[last_choose][2] = null;
+        user[socket.username][1] = false;
+        user[socket.username][2] = null;
+      }
     } else {
       console.log(socket.username + " has already chosen!");
     }
+    console.log(last_choose);
     console.log(user);
   });
 });

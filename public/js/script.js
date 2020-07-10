@@ -17,17 +17,17 @@ $(function () {
   //rock
   $("#rock_but").click(function () {
     console.log(username + " picked: ROCK");
-    socket.emit("rps_option", "ROCK");
+    socket.emit("rps_option", 2);
   });
   //paper
   $("#paper_but").click(function () {
     console.log(username + " picked: PAPER");
-    socket.emit("rps_option", "PAPER");
+    socket.emit("rps_option", 1);
   });
   //scissors
   $("#scissors_but").click(function () {
     console.log(username + " picked: SCISSORS");
-    socket.emit("rps_option", "SCISSORS");
+    socket.emit("rps_option", 3);
   });
   //chatbutton
   $("form").submit(function (e) {
