@@ -30,6 +30,10 @@ app.get("/", function (req, res, next) {
   res.render("index", { title: "RPS-Chat" });
 });
 
+app.get("login", function (req, res, next) {
+  res.render("login", { title: "RPS-Login" });
+});
+
 const server = httpServer.listen("8080", function () {
   console.log("listening at :8080");
 });
@@ -45,16 +49,15 @@ function rps(choice1, choice2) {
   }
 }
 
+let user = {
+  //name, chosen, choice
+  name: [],
+};
+let last_choose = null; // last user that chose a rps option and compares
+
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
-  let user = {
-    //name, chosen, choice
-    name: [],
-  };
-
-  let last_choose = null; // last user that chose a rps option and compares
-
   socket.on("username", function (username) {
     socket.username = username;
     console.log(username + " has connected");
@@ -100,16 +103,15 @@ io.sockets.on("connection", function (socket) {
       if (last_choose == null) {
         last_choose = socket.username;
       } else {
-        console.log("ttttttttttttttttttttt" + last_choose);
-        winner = rps(user[last_choose][2], user[socket.username][2]);
+        let winner = rps(user[last_choose][2], user[socket.username][2]);
         if (winner == 1) {
           io.emit(
             "chat_message",
             "<strong>" +
               last_choose +
-              "beats " +
+              " beats " +
               socket.username +
-              "by using " +
+              " by using " +
               optionname +
               "</strong>"
           );
@@ -118,9 +120,9 @@ io.sockets.on("connection", function (socket) {
             "chat_message",
             "<strong>" +
               socket.username +
-              "beats " +
+              " beats " +
               last_choose +
-              "by using " +
+              " by using " +
               optionname +
               "</strong>"
           );
@@ -129,7 +131,7 @@ io.sockets.on("connection", function (socket) {
             "chat_message",
             "<strong>It's a DRAW between " +
               last_choose +
-              "and" +
+              " and " +
               socket.username +
               "!</strong>"
           );
@@ -140,12 +142,13 @@ io.sockets.on("connection", function (socket) {
         user[last_choose][2] = null;
         user[socket.username][1] = false;
         user[socket.username][2] = null;
+        last_choose = null;
       }
     } else {
       console.log(socket.username + " has already chosen!");
     }
-    console.log(last_choose);
-    console.log(user);
+    // console.log(last_choose);
+    // console.log(user);
   });
 });
 

@@ -14,15 +14,15 @@ $(function () {
   socket.emit("username", username);
 
   //rps options
-  //rock
-  $("#rock_but").click(function () {
-    console.log(username + " picked: ROCK");
-    socket.emit("rps_option", 2);
-  });
   //paper
   $("#paper_but").click(function () {
     console.log(username + " picked: PAPER");
     socket.emit("rps_option", 1);
+  });
+  //rock
+  $("#rock_but").click(function () {
+    console.log(username + " picked: ROCK");
+    socket.emit("rps_option", 2);
   });
   //scissors
   $("#scissors_but").click(function () {
