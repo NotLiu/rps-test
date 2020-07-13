@@ -7,6 +7,20 @@ import http from "http";
 import socketio from "socket.io";
 import { constants } from "buffer";
 
+//db setup
+import pgpromise from "pg-promise";
+const pgp = pgpromise();
+
+const db = pgp("postgres://aliu:775842@localhost:5432/rps");
+
+//temp user db
+const query =
+  "CREATE TABLE temp_user(\
+    user_id integer,\
+    user_name character varying(20))";
+
+db.none(query);
+
 const app = express();
 const httpServer = http.Server(app);
 const io = socketio(httpServer);
@@ -25,13 +39,12 @@ app.use(express.static("./public"));
 // app.get("/user", function (req, res, next) {
 //   res.render("index", { title: "RPS-Chat" });
 // });
+app.get("/login", function (req, res, next) {
+  res.render("login", { title: "RPS-Login" });
+});
 
 app.get("/", function (req, res, next) {
   res.render("index", { title: "RPS-Chat" });
-});
-
-app.get("login", function (req, res, next) {
-  res.render("login", { title: "RPS-Login" });
 });
 
 const server = httpServer.listen("8080", function () {
@@ -54,7 +67,7 @@ let user = {
   name: [],
 };
 let last_choose = null; // last user that chose a rps option and compares
-
+let temp_id = 0;
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
@@ -66,6 +79,23 @@ io.sockets.on("connection", function (socket) {
     user[socket.username].push(socket.username);
     user[socket.username].push(null);
     user[socket.username].push(null);
+
+    //***temp add user to rps db if not in */
+    db.none("SELECT user_name FROM temp_user WHERE user_name = $1", [
+      socket.username,
+    ])
+      .then(function (data) {
+        //success;"
+        console.log("user relogging");
+      })
+      .catch(function (error) {
+        //error;
+        db.none("INSERT INTO temp_user(user_id, user_name) VALUES ($1, $2)", [
+          temp_id,
+          socket.username,
+        ]);
+        temp_id += 1;
+      });
   });
 
   socket.on("disconnect", function (username) {
