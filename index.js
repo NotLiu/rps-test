@@ -15,7 +15,7 @@ const db = pgp("postgres://aliu:775842@localhost:5432/rps");
 
 //temp user db
 const query =
-  "CREATE TABLE temp_user(\
+  "CREATE TABLE IF NOT EXISTS temp_user(\
     user_id integer,\
     user_name character varying(20))";
 
@@ -86,15 +86,16 @@ io.sockets.on("connection", function (socket) {
     ])
       .then(function (data) {
         //success;"
-        console.log("user relogging");
-      })
-      .catch(function (error) {
-        //error;
+        console.log("test");
         db.none("INSERT INTO temp_user(user_id, user_name) VALUES ($1, $2)", [
           temp_id,
           socket.username,
         ]);
         temp_id += 1;
+      })
+      .catch(function (error) {
+        //error;
+        console.log("user relogging");
       });
   });
 
