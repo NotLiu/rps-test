@@ -34,11 +34,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static("./public"));
 
-//
+//render views
 
-// app.get("/user", function (req, res, next) {
-//   res.render("index", { title: "RPS-Chat" });
-// });
+app.get("/register", function (req, res, next) {
+  res.render("register", { title: "Register" });
+});
+
 app.get("/login", function (req, res, next) {
   res.render("login", { title: "RPS-Login" });
 });
@@ -66,8 +67,14 @@ let user = {
   //name, chosen, choice
   name: [],
 };
+
 let last_choose = null; // last user that chose a rps option and compares
+
+//get id
 let temp_id = 0;
+db.one("SELECT COUNT(*) FROM temp_user").then(function (data) {
+  temp_id = data.count;
+});
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
@@ -86,7 +93,8 @@ io.sockets.on("connection", function (socket) {
     ])
       .then(function (data) {
         //success;"
-        console.log("test");
+        console.log("new user");
+        console.log(temp_id);
         db.none("INSERT INTO temp_user(user_id, user_name) VALUES ($1, $2)", [
           temp_id,
           socket.username,

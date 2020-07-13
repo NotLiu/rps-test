@@ -116,3 +116,111 @@
 .rps-option > button {
   width: 100%;
 }
+
+#login-flexbox {
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+  padding: 10%;
+}
+
+#login-box {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(99, 99, 99);
+  border-radius: 10px;
+
+  background-color: rgb(230, 241, 243);
+  padding: 2em 2em;
+
+  width: 50%;
+  height: 400px;
+}
+
+.login-label {
+  padding: 0.3em 0 0.2em;
+
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+#login-form {
+  width: 100%;
+}
+#username {
+  width: 100%;
+}
+#password {
+  width: 100%;
+}
+
+#submit-align {
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+  padding: 1em;
+}
+
+#login-recovery {
+  padding-bottom: 0.3em;
+}
+
+#login-recuser {
+  padding-right: 1em;
+}
+
+#register-flexbox {
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+  padding: 3%;
+}
+
+#register-box {
+  display: inline-flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(99, 99, 99);
+  border-radius: 10px;
+
+  background-color: rgb(230, 241, 243);
+  padding: 2em 2em;
+
+  width: 50%;
+  height: 400px;
+}
+
+.register-label {
+  padding: 0.3em 0 0.2em;
+
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+#register-form {
+  width: 100%;
+}
+
+#register-recovery {
+  padding-bottom: 0.3em;
+}
+
+#register-recuser {
+  padding-right: 1em;
+}
+
+.reg-input {
+  width: 100%;
+}
