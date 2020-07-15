@@ -11,7 +11,9 @@ $(function () {
   });
 
   const username = prompt("Enter a username");
-  socket.emit("username", username);
+  if (username != null) {
+    socket.emit("username", username);
+  }
 
   //rps options
   //paper

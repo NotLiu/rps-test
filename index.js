@@ -21,6 +21,19 @@ const query =
 
 db.none(query);
 
+const reg_query =
+  "CREATE TABLE IF NOT EXISTS reg_user(\
+      user_id integer NOT NULL,\
+      user_name character varying(20),\
+      password character varying(20),\
+      email character varying(20),\
+      rating integer,\
+      wins integer,\
+      losses integer,\
+      draws integer)";
+
+db.none(reg_query);
+
 const app = express();
 const httpServer = http.Server(app);
 const io = socketio(httpServer);
@@ -188,6 +201,40 @@ io.sockets.on("connection", function (socket) {
     }
     // console.log(last_choose);
     // console.log(user);
+  });
+
+  //registration checking
+  socket.on("registration_check", function (user_data) {
+    db.none("SELECT user_name FROM reg_user WHERE user_name = $1", [
+      user_data[0],
+    ])
+      .then(function (data) {
+        db.none("SELECT email FROM reg_user WHERE email = $1", [user_data[2]])
+          .then(function (data) {
+            let id = 0;
+            db.one("SELECT COUNT(*) FROM reg_user")
+              .then(function (data) {
+                id = data.count;
+              })
+              .catch(function (error) {});
+            db.none(
+              "INSERT INTO reg_user(user_id, user_name, password, email, rating, wins, losses, draws) VALUES($1, $2, $3, $4, $5, $6, $7, $8)",
+              [id, user_data[0], user_data[1], user_data[2], 500, 0, 0, 0]
+            );
+            io.emit("registration_error", "SUCCESS");
+          })
+          .catch(function (error) {
+            io.emit(
+              "registration_error",
+              "There is already an account under that email"
+            );
+            console.log("email taken");
+          });
+      })
+      .catch(function (error) {
+        io.emit("registration_error", "That Username is taken.");
+        console.log("username taken");
+      });
   });
 });
 
