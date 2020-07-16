@@ -122,7 +122,6 @@
   justify-content: center;
 
   width: 100%;
-  padding: 10%;
 }
 
 #login-box {
@@ -153,10 +152,10 @@
 #login-form {
   width: 100%;
 }
-#username {
+#loginuser {
   width: 100%;
 }
-#password {
+#loginpass {
   width: 100%;
 }
 
@@ -176,6 +175,24 @@
   padding-right: 1em;
 }
 
+/* error box */
+#error {
+  display: flex;
+  justify-content: center;
+
+  border-style: solid;
+  border-radius: 10px;
+
+  background-color: red;
+
+  color: white;
+  font-weight: bold;
+
+  width: 50%;
+  margin: 2% 25%;
+}
+
+/* registration box */
 #register-flexbox {
   display: flex;
   justify-content: center;

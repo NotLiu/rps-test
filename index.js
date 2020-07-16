@@ -9,6 +9,7 @@ import { constants } from "buffer";
 
 //db setup
 import pgpromise from "pg-promise";
+import { stringify } from "querystring";
 const pgp = pgpromise();
 
 const db = pgp("postgres://aliu:775842@localhost:5432/rps");
@@ -48,6 +49,14 @@ app.use(cookieParser());
 app.use(express.static("./public"));
 
 //render views
+app.get("/leaderboards", function (req, res, next) {
+  res.render("leaderboards", { title: "Leaderboards" });
+});
+
+app.get("/success", function (req, res, next) {
+  // temp registration success screen
+  res.render("success", { title: "Registered!" });
+});
 
 app.get("/register", function (req, res, next) {
   res.render("register", { title: "Register" });
@@ -91,6 +100,7 @@ db.one("SELECT COUNT(*) FROM temp_user").then(function (data) {
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
+  console.log("Socket " + socket.id + " connected.");
   socket.on("username", function (username) {
     socket.username = username;
     console.log(username + " has connected");
@@ -122,7 +132,7 @@ io.sockets.on("connection", function (socket) {
 
   socket.on("disconnect", function (username) {
     io.emit("is_online", socket.username + " disconnected!");
-    console.log(socket.username);
+    console.log("Socket ${socket.id} disconnected.");
     delete user[socket.username];
   });
 
@@ -211,22 +221,32 @@ io.sockets.on("connection", function (socket) {
       .then(function (data) {
         db.none("SELECT email FROM reg_user WHERE email = $1", [user_data[2]])
           .then(function (data) {
-            let id = 0;
+            let reg_id = 0;
             db.one("SELECT COUNT(*) FROM reg_user")
               .then(function (data) {
-                id = data.count;
+                reg_id = data.count;
+                console.log(reg_id);
+                db.none(
+                  "INSERT INTO reg_user(user_id, user_name, password, email, rating, wins, losses, draws) VALUES($1, $2, $3, $4, $5, $6, $7, $8)",
+                  [
+                    reg_id,
+                    user_data[0],
+                    user_data[1],
+                    user_data[2],
+                    500,
+                    0,
+                    0,
+                    0,
+                  ]
+                );
+                io.emit("registration_error", "SUCCESS");
               })
               .catch(function (error) {});
-            db.none(
-              "INSERT INTO reg_user(user_id, user_name, password, email, rating, wins, losses, draws) VALUES($1, $2, $3, $4, $5, $6, $7, $8)",
-              [id, user_data[0], user_data[1], user_data[2], 500, 0, 0, 0]
-            );
-            io.emit("registration_error", "SUCCESS");
           })
           .catch(function (error) {
             io.emit(
               "registration_error",
-              "There is already an account under that email"
+              "There is already an account under that email."
             );
             console.log("email taken");
           });
@@ -234,6 +254,28 @@ io.sockets.on("connection", function (socket) {
       .catch(function (error) {
         io.emit("registration_error", "That Username is taken.");
         console.log("username taken");
+      });
+  });
+
+  //login checking
+  socket.on("login_check", function (login_data) {
+    db.one("SELECT user_name FROM reg_user WHERE user_name = $1", [
+      login_data[0],
+    ])
+      .then(function (data) {
+        db.one("SELECT password FROM reg_user WHERE password = $1", [
+          login_data[1],
+        ])
+          .then(function (data) {
+            console.log("SUCCESS");
+            io.emit("login_response", "SUCCESS");
+          })
+          .catch(function (error) {
+            io.emit("login_response", "ERROR");
+          });
+      })
+      .catch(function (error) {
+        io.emit("login_response", "ERROR");
       });
   });
 });
