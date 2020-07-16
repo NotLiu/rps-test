@@ -241,3 +241,79 @@
 .reg-input {
   width: 100%;
 }
+
+#leaderboard-flexbox {
+  display: flex;
+  justify-content: center;
+  padding: 3%;
+}
+
+#leaderboard {
+  display: inline-flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(99, 99, 99);
+  border-radius: 10px;
+
+  background-color: rgb(230, 241, 243);
+  padding: 2em 2em;
+
+  width: 50%;
+  height: 600px;
+}
+
+#leaderboard-type {
+  text-align: center;
+  width: 100%;
+}
+
+.list-item-row {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+#leaderboard-list {
+  padding-left: 0;
+  list-style-type: decimal;
+  width: 100%;
+}
+
+.list-item-row {
+  list-style-type: none;
+  width: 100%;
+}
+
+.list-item-row-left {
+  position: sticky;
+  right: 100%;
+}
+
+.list-item-row-right {
+  position: sticky;
+  left: 65%;
+}
+
+#leaderboard-page {
+  position: sticky;
+  top: 100%;
+  padding: 0;
+  width: 100%;
+}
+#leaderboard-page-list {
+  display: inline-flex;
+  flex-direction: row;
+  list-style-type: none;
+
+  width: 100%;
+  padding: 0;
+
+  justify-content: center;
+}
+
+.leaderboard-page-buttons {
+  padding: 0 5px;
+}
