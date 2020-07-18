@@ -23,7 +23,7 @@
 <body>
   <div id="nav-bar">
     <div id="nav-name">
-      <a href="#">RPS</a>
+      <span id="title">RPS</span>
       <a href="mailto:aliu@lediur.com" id="email">
         <i class="fas fa-envelope"></i>
       </a>
@@ -43,6 +43,26 @@
   </div>
   {{{body}}}
 
+  <script>
+    const socket = io("http://localhost:8080");
+
+    var session_id;
+    // Get saved data from sessionStorage
+    let data = sessionStorage.getItem("sessionId");
+    console.log(data);
+    if (data == null) {
+      session_id = null; //when we connect first time
+      socket.emit("start-session", { sessionId: session_id });
+    } else {
+      session_id = data; //when we connect n times
+      socket.emit("start-session", { sessionId: session_id });
+    }
+
+    if (sessionStorage.sessionId != null) {
+      console.log(sessionStorage.user_Name);
+      document.getElementById('title').textContent = sessionStorage.user_Name;
+    }
+  </script>
 
 </body>
 

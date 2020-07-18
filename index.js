@@ -6,6 +6,7 @@ import logger from "morgan";
 import http from "http";
 import socketio from "socket.io";
 import { constants } from "buffer";
+import uuid from "uuidv4";
 
 //db setup
 import pgpromise from "pg-promise";
@@ -101,6 +102,17 @@ db.one("SELECT COUNT(*) FROM temp_user").then(function (data) {
 
 io.sockets.on("connection", function (socket) {
   console.log("Socket " + socket.id + " connected.");
+
+  socket.on("start-session", function (data) {
+    console.log("====start-session====");
+    console.log(data);
+
+    if (data.sessionId == null) {
+      var session_id = uuid.uuid();
+      io.emit("set-session-acknowledgement", { sessionId: session_id });
+    }
+  });
+
   socket.on("username", function (username) {
     socket.username = username;
     console.log(username + " has connected");
@@ -263,6 +275,7 @@ io.sockets.on("connection", function (socket) {
       login_data[0],
     ])
       .then(function (data) {
+        // socket.emit("acc_username", data.user_name);
         db.one("SELECT password FROM reg_user WHERE password = $1", [
           login_data[1],
         ])
