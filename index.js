@@ -148,6 +148,11 @@ io.sockets.on("connection", function (socket) {
     delete user[socket.username];
   });
 
+  socket.on("logout", function () {
+    console.log("Socket ${socket.id} disconnected.");
+    // io.close();
+  });
+
   socket.on("chat_message", function (message) {
     io.emit(
       "chat_message",

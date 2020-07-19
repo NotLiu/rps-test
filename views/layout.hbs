@@ -34,7 +34,7 @@
       </li>
 
       <li>
-        <a href="login">LOGIN</a>
+        <a href="login" id="login">LOGIN</a>
       </li>
       <li>
         <a href="leaderboards">LEADERBOARDS</a>
@@ -44,23 +44,22 @@
   {{{body}}}
 
   <script>
-    const socket = io("http://localhost:8080");
-
-    var session_id;
-    // Get saved data from sessionStorage
-    let data = sessionStorage.getItem("sessionId");
-    console.log(data);
-    if (data == null) {
-      session_id = null; //when we connect first time
-      socket.emit("start-session", { sessionId: session_id });
-    } else {
-      session_id = data; //when we connect n times
-      socket.emit("start-session", { sessionId: session_id });
-    }
-
+    const socket = io("http://localhost:8080", { 'forceNew': true });
     if (sessionStorage.sessionId != null) {
-      console.log(sessionStorage.user_Name);
       document.getElementById('title').textContent = sessionStorage.user_Name;
+      document.getElementById('login').setAttribute('href', '#');
+      document.getElementById('login').textContent = 'DISCONNECT';
+
+      $('#login').on('click', function () {
+        socket.emit('disconnect', sessionStorage.user_Name);
+
+        sessionStorage.removeItem('sessionId');
+        sessionStorage.removeItem('user_Name');
+        document.getElementById('login').setAttribute('href', 'login');
+        document.getElementById('login').textContent = 'LOGIN';
+        document.getElementById('title').textContent = 'RPS';
+      })
+
     }
   </script>
 
