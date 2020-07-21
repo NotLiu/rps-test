@@ -14,23 +14,30 @@ $(function () {
   let guest = false;
   let username;
   if (sessionStorage.user_Name == null) {
+    console.log("te");
     guest = confirm("Would you like to be logged in as a Guest?");
   }
 
   if (guest) {
-    socket.emit("guest", true);
+    console.log("tet");
     socket.emit("start-session", { sessionId: null });
+    socket.emit("guest", true);
   } else {
     username = sessionStorage.user_Name;
   }
 
   socket.on("set-session-acknowledgement", function (data) {
+    console.log("test");
     sessionStorage.setItem("sessionId", data.sessionId);
   });
 
   socket.on("guest-name", function (name) {
     username = name;
     sessionStorage.user_Name = username;
+    console.log(document.getElementById("title").textContent);
+    if (document.getElementById("title").textContent == "RPS") {
+      location.reload();
+    }
   });
 
   if (username != null) {

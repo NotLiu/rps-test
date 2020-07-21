@@ -45,6 +45,7 @@
 
   <script>
     const socket = io("http://localhost:8080", { 'forceNew': true });
+
     if (sessionStorage.sessionId != null) {
       document.getElementById('title').textContent = sessionStorage.user_Name;
       document.getElementById('login').setAttribute('href', '#');
