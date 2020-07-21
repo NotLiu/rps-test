@@ -17,7 +17,7 @@ const db = pgp("postgres://aliu:775842@localhost:5432/rps");
 
 //temp user db
 const query =
-  "CREATE TABLE IF NOT EXISTS temp_user(\
+  "CREATE TEMP TABLE IF NOT EXISTS temp_user(\
     user_id integer,\
     user_name character varying(20))";
 
@@ -91,13 +91,17 @@ let user = {
   name: [],
 };
 
+let guest = [];
+
 let last_choose = null; // last user that chose a rps option and compares
 
 //get id
 let temp_id = 0;
-db.one("SELECT COUNT(*) FROM temp_user").then(function (data) {
-  temp_id = data.count;
-});
+db.one("SELECT COUNT(*) FROM temp_user")
+  .then(function (data) {
+    temp_id = data.count;
+  })
+  .catch(function (error) {});
 //socketio server event handling
 
 io.sockets.on("connection", function (socket) {
@@ -146,10 +150,7 @@ io.sockets.on("connection", function (socket) {
     io.emit("is_online", socket.username + " disconnected!");
     console.log("Socket ${socket.id} disconnected.");
     delete user[socket.username];
-  });
 
-  socket.on("logout", function () {
-    console.log("Socket ${socket.id} disconnected.");
     // io.close();
   });
 
@@ -326,6 +327,17 @@ io.sockets.on("connection", function (socket) {
         }
       })
       .catch(function (error) {});
+  });
+
+  //guest handling
+  socket.on("guest", function (data) {
+    let guestname = "GUEST#" + Math.floor(Math.random() * 10000).toString();
+    while (guest.includes(guestname)) {
+      guestname = "GUEST#" + Math.floor(Math.random() * 10000).toString();
+    }
+
+    guest.push(guestname);
+    socket.emit("guest-name", guestname);
   });
 });
 

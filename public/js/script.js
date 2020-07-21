@@ -1,5 +1,5 @@
 $(function () {
-  const socket = io("http://localhost:8080");
+  // const socket = io("http://localhost:8080");
 
   socket.on("chat_message", function (msg) {
     $("#messages").append($("<li>").html(msg));
@@ -10,7 +10,29 @@ $(function () {
     $("#messages").append($("<li>").html(username));
   });
 
-  const username = prompt("Enter a username");
+  //add guest accounts, temp ids and sets usernames in chat
+  let guest = false;
+  let username;
+  if (sessionStorage.user_Name == null) {
+    guest = confirm("Would you like to be logged in as a Guest?");
+  }
+
+  if (guest) {
+    socket.emit("guest", true);
+    socket.emit("start-session", { sessionId: null });
+  } else {
+    username = sessionStorage.user_Name;
+  }
+
+  socket.on("set-session-acknowledgement", function (data) {
+    sessionStorage.setItem("sessionId", data.sessionId);
+  });
+
+  socket.on("guest-name", function (name) {
+    username = name;
+    sessionStorage.user_Name = username;
+  });
+
   if (username != null) {
     socket.emit("username", username);
   }
