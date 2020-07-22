@@ -1,26 +1,42 @@
-<div id="chat">
-    <div id="chatbox">
-        <ul id="messages"></ul>
-    </div>
+<div id="chat-flex">
+    <div id="chat">
+        <div id="chatbox">
+            <ul id="messages"></ul>
+        </div>
 
-    <div id="rps">
-        <ul id="rps-options">
-            <li class="rps-option">
-                <button type='button' id="rock_but">ROCK</button>
+        <div id="rps">
+            <ul id="rps-options">
+                <li class="rps-option">
+                    <button type='button' id="rock_but">ROCK</button>
+                </li>
+                <li class="rps-option">
+                    <button type='button' id="paper_but">PAPER</button>
+                </li>
+                <li class="rps-option">
+                    <button type='button' id="scissors_but">SCISSORS</button>
+                </li>
+            </ul>
+        </div>
+
+        <form action="/" method="POST" id="chatForm">
+            <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()"
+                placeholder="type your message here..." /><button>Send</button>
+        </form>
+    </div>
+    <div id="userlist">
+        <div id='userlist-title'>
+            User List
+        </div>
+
+        <ul id='userlist-users'>
+            <li class='userlist-user'>
+                test
             </li>
-            <li class="rps-option">
-                <button type='button' id="paper_but">PAPER</button>
-            </li>
-            <li class="rps-option">
-                <button type='button' id="scissors_but">SCISSORS</button>
+            <li class='userlist-user'>
+                test2
             </li>
         </ul>
     </div>
-
-    <form action="/" method="POST" id="chatForm">
-        <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()"
-            placeholder="type your message here..." /><button>Send</button>
-    </form>
 </div>
 
 <script src="/js/script.js"></script>

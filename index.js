@@ -91,7 +91,7 @@ let user = {
   name: [],
 };
 
-let guest = [];
+const guest = [];
 
 let last_choose = null; // last user that chose a rps option and compares
 
@@ -106,6 +106,12 @@ db.one("SELECT COUNT(*) FROM temp_user")
 
 io.sockets.on("connection", function (socket) {
   console.log("Socket " + socket.id + " connected.");
+
+  socket.on("chat-loaded", function (data) {
+    if (data != null) {
+      guest.push(data);
+    }
+  });
 
   socket.on("start-session", function (data) {
     console.log("====start-session====");
@@ -125,7 +131,7 @@ io.sockets.on("connection", function (socket) {
     user[socket.username].push(socket.username);
     user[socket.username].push(null);
     user[socket.username].push(null);
-
+    io.emit("reload-list", guest);
     //***temp add user to rps db if not in */
     db.none("SELECT user_name FROM temp_user WHERE user_name = $1", [
       socket.username,
@@ -151,6 +157,9 @@ io.sockets.on("connection", function (socket) {
     console.log("Socket ${socket.id} disconnected.");
     delete user[socket.username];
 
+    const index = guest.indexOf(socket.username);
+    guest.splice(index, 1);
+    io.emit("reload-list", guest);
     // io.close();
   });
 
@@ -339,6 +348,11 @@ io.sockets.on("connection", function (socket) {
     guest.push(guestname);
     socket.emit("guest-name", guestname);
   });
+
+  // socket.on("chat-loaded", function (data) {
+  //   console.log(guest);
+  //   socket.emit("login-list", guest);
+  // });
 });
 
 //error handling

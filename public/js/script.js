@@ -1,13 +1,26 @@
 $(function () {
+  console.log("test");
+  socket.emit("chat-loaded", sessionStorage.user_Name);
   // const socket = io("http://localhost:8080");
 
   socket.on("chat_message", function (msg) {
     $("#messages").append($("<li>").html(msg));
   });
 
+  let userlist = [];
+
   socket.on("is_online", function (username) {
     // console.log("test" + username);
     $("#messages").append($("<li>").html(username));
+  });
+
+  socket.on("reload-list", function (data) {
+    userlist = data;
+    $("#userlist-users").empty();
+    console.log(userlist);
+    for (i = 0; i < userlist.length; i++) {
+      $("#userlist-users").append($("<li>").html(userlist[i]));
+    }
   });
 
   //add guest accounts, temp ids and sets usernames in chat
