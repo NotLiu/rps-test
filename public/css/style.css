@@ -150,6 +150,15 @@
   padding: 0;
 }
 
+.userlist-user {
+  padding: 2px 10px;
+}
+
+.userlist-user:hover {
+  background-color: ghostwhite;
+  border-radius: 6px;
+}
+
 /* login page */
 #login-flexbox {
   display: flex;

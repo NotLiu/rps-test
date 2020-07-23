@@ -19,7 +19,10 @@ $(function () {
     $("#userlist-users").empty();
     console.log(userlist);
     for (i = 0; i < userlist.length; i++) {
-      $("#userlist-users").append($("<li>").html(userlist[i]));
+      let listItem = document.createElement("LI");
+      listItem.textContent = userlist[i];
+      listItem.className = "userlist-user";
+      document.getElementById("userlist-users").appendChild(listItem);
     }
   });
 

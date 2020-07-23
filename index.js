@@ -188,6 +188,7 @@ io.sockets.on("connection", function (socket) {
 
       user[socket.username][1] = true;
       user[socket.username][2] = option;
+      user[socket.username][3] = optionname;
 
       if (last_choose == null) {
         last_choose = socket.username;
@@ -201,7 +202,7 @@ io.sockets.on("connection", function (socket) {
               " beats " +
               socket.username +
               " by using " +
-              optionname +
+              user[last_choose][3] +
               "</strong>"
           );
         } else if (winner == 2) {
@@ -212,7 +213,7 @@ io.sockets.on("connection", function (socket) {
               " beats " +
               last_choose +
               " by using " +
-              optionname +
+              user[socket.username][3] +
               "</strong>"
           );
         } else {
