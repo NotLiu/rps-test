@@ -94,12 +94,14 @@ let user = {
 const guest = [];
 
 let last_choose = null; // last user that chose a rps option and compares
-
+const duelists = {
+  user: "",
+};
 //get id
 let temp_id = 0;
 db.one("SELECT COUNT(*) FROM temp_user")
   .then(function (data) {
-    temp_id = data.count;
+    temp_id = Number(data.count);
   })
   .catch(function (error) {});
 //socketio server event handling
@@ -170,6 +172,20 @@ io.sockets.on("connection", function (socket) {
     );
   });
 
+  //check duel
+  socket.on("challenge", function (duelist) {
+    duelists[duelist[0]] = duelist[1];
+    duelists[duelist[1]] = duelist[0];
+  });
+
+  socket.on("challenge-check", function (user) {
+    if (!(user[1] in duelists)) {
+      io.sockets.emit("challenge-confirm", user);
+    } else {
+      console.log("user already challenged");
+    }
+  });
+
   socket.on("rps_option", function (option) {
     let optionname = "";
     if (option == 1) {
@@ -179,7 +195,7 @@ io.sockets.on("connection", function (socket) {
     } else {
       optionname = "SCISSORS";
     }
-
+    // console.log(user);
     if (user[socket.username][1] != true) {
       io.emit(
         "chat_message",
@@ -190,49 +206,63 @@ io.sockets.on("connection", function (socket) {
       user[socket.username][2] = option;
       user[socket.username][3] = optionname;
 
-      if (last_choose == null) {
-        last_choose = socket.username;
-      } else {
-        let winner = rps(user[last_choose][2], user[socket.username][2]);
+      if (user[duelists[socket.username]][1]) {
+        let winner = rps(
+          user[duelists[socket.username]][2],
+          user[socket.username][2]
+        );
         if (winner == 1) {
           io.emit(
             "chat_message",
             "<strong>" +
-              last_choose +
+              duelists[socket.username] +
               " beats " +
               socket.username +
               " by using " +
-              user[last_choose][3] +
+              user[duelists[socket.username]][3] +
               "</strong>"
           );
+          io.sockets.emit("results", [
+            duelists[socket.username],
+            socket.username,
+          ]);
         } else if (winner == 2) {
           io.emit(
             "chat_message",
             "<strong>" +
               socket.username +
               " beats " +
-              last_choose +
+              duelists[socket.username] +
               " by using " +
               user[socket.username][3] +
               "</strong>"
           );
+          io.sockets.emit("results", [
+            socket.username,
+            duelists[socket.username],
+          ]);
         } else {
           io.emit(
             "chat_message",
             "<strong>It's a DRAW between " +
-              last_choose +
+              duelists[socket.username] +
               " and " +
               socket.username +
               "!</strong>"
           );
+          io.sockets.emit("results", "draw");
         }
 
         //reset after comparing rps
-        user[last_choose][1] = false;
-        user[last_choose][2] = null;
+        user[duelists[socket.username]][1] = false;
+        user[duelists[socket.username]][2] = null;
+        user[duelists[socket.username]][3] = null;
         user[socket.username][1] = false;
         user[socket.username][2] = null;
-        last_choose = null;
+        user[socket.username][3] = null;
+
+        delete duelists[duelists[socket.username]];
+        delete duelists[socket.username];
       }
     } else {
       console.log(socket.username + " has already chosen!");
