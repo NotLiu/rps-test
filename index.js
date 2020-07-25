@@ -158,9 +158,15 @@ io.sockets.on("connection", function (socket) {
     io.emit("is_online", socket.username + " disconnected!");
     console.log("Socket ${socket.id} disconnected.");
     delete user[socket.username];
-
+    console.log(guest);
+    console.log(socket.username);
+    console.log(guest[0] == socket.username);
     const index = guest.indexOf(socket.username);
-    guest.splice(index, 1);
+    console.log(guest);
+    console.log(index);
+    if (index != -1) {
+      guest.splice(index, 1);
+    }
     io.emit("reload-list", guest);
     // io.close();
   });

@@ -67,6 +67,7 @@ $(function () {
     socket.emit("guest", true);
   } else {
     username = sessionStorage.user_Name;
+    socket.emit("username", username);
   }
 
   socket.on("set-session-acknowledgement", function (data) {
@@ -76,15 +77,12 @@ $(function () {
   socket.on("guest-name", function (name) {
     username = name;
     sessionStorage.user_Name = username;
+    socket.emit("username", username);
     console.log(document.getElementById("title").textContent);
     if (document.getElementById("title").textContent == "RPS") {
       location.reload();
     }
   });
-
-  if (username != null) {
-    socket.emit("username", username);
-  }
 
   //rps options
 
