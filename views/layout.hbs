@@ -24,9 +24,9 @@
   <div id="nav-bar">
     <div id="nav-name">
       <span id="title">RPS</span>
-      <a href="mailto:aliu@lediur.com" id="email">
+      {{!-- <a href="mailto:aliu@lediur.com" id="email">
         <i class="fas fa-envelope"></i>
-      </a>
+      </a> --}}
     </div>
     <ul id="nav">
       <li>
@@ -44,7 +44,7 @@
 
 
   <script>
-    const socket = io("http://localhost:8080", { 'forceNew': true });
+    const socket = io("http://" + location.hostname + ":8080", { 'forceNew': true });
 
     if (sessionStorage.sessionId != null) {
       document.getElementById('title').textContent = sessionStorage.user_Name;

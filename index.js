@@ -7,6 +7,7 @@ import http from "http";
 import socketio from "socket.io";
 import { constants } from "buffer";
 import uuid from "uuidv4";
+import ngrok from "ngrok";
 
 //db setup
 import pgpromise from "pg-promise";
@@ -71,8 +72,13 @@ app.get("/", function (req, res, next) {
   res.render("index", { title: "RPS-Chat" });
 });
 
-const server = httpServer.listen("8080", function () {
+const server = httpServer.listen(8080, function () {
   console.log("listening at :8080");
+  ngrok
+    .connect(8080, function (err, url) {
+      console.log(`Node.js local server is publicly-accessible at ${url}`);
+    })
+    .catch(function (error) {});
 });
 
 //rps handling
@@ -158,12 +164,9 @@ io.sockets.on("connection", function (socket) {
     io.emit("is_online", socket.username + " disconnected!");
     console.log("Socket ${socket.id} disconnected.");
     delete user[socket.username];
-    console.log(guest);
-    console.log(socket.username);
-    console.log(guest[0] == socket.username);
+
     const index = guest.indexOf(socket.username);
-    console.log(guest);
-    console.log(index);
+
     if (index != -1) {
       guest.splice(index, 1);
     }
@@ -191,6 +194,34 @@ io.sockets.on("connection", function (socket) {
       console.log("user already challenged");
     }
   });
+
+  function duel_rating(player1, player2) {
+    return db
+      .one("SELECT rating FROM reg_user WHERE user_name = $1", [player1])
+      .then(function (data1) {
+        return db
+          .one("SELECT rating FROM reg_user WHERE user_name = $1", [player2])
+          .then(function (data2) {
+            //if player 1 has a larger rating data greater than 1, vice versa. therefore if player 2 wins while we keep this ratio
+            return [
+              Math.pow(data1.rating / data2.rating, 1.5),
+              player1,
+              player2,
+            ];
+          })
+          .catch(function (error) {
+            return [0.5, player1, player2];
+          });
+      })
+      .catch(function (error) {
+        return [0.5, player1, player2];
+      });
+  }
+  // duel_rating(socket.username, duelists[socket.username])
+  //   .then(function (data) {
+  //     console.log(data);
+  //   })
+  //   .catch(function (data) {});
 
   socket.on("rps_option", function (option) {
     let optionname = "";
@@ -228,6 +259,45 @@ io.sockets.on("connection", function (socket) {
               user[duelists[socket.username]][3] +
               "</strong>"
           );
+          //rating adjustment
+
+          duel_rating(socket.username, duelists[socket.username])
+            .then(function (data) {
+              console.log(data);
+              console.log("test");
+              if (!data[2].includes("GUEST")) {
+                db.one("SELECT rating FROM reg_user WHERE user_name = $1", [
+                  data[2],
+                ])
+                  .then(function (data1) {
+                    console.log(data1.rating + Math.floor(25 * data[0]));
+                    db.none(
+                      "UPDATE reg_user SET rating = $1 WHERE user_name = $2",
+                      [data1.rating + Math.floor(25 * data[0]), data[2]]
+                    )
+                      .then(function (data2) {})
+                      .catch(function (error) {});
+                  })
+                  .catch(function (error) {});
+              }
+              console.log("AAAAAAAAAA");
+              if (!data[1].includes("GUEST")) {
+                db.one("SELECT rating FROM reg_user WHERE user_name = $1", [
+                  data[1],
+                ])
+                  .then(function (data1) {
+                    db.none(
+                      "UPDATE reg_user SET rating = $1 WHERE user_name = $2",
+                      [data1.rating - Math.floor((25 * data[0]) / 2), data[1]]
+                    )
+                      .then(function (data2) {})
+                      .catch(function (error) {});
+                  })
+                  .catch(function (error) {});
+              }
+            })
+            .catch(function (error) {});
+
           io.sockets.emit("results", [
             duelists[socket.username],
             socket.username,
@@ -243,6 +313,43 @@ io.sockets.on("connection", function (socket) {
               user[socket.username][3] +
               "</strong>"
           );
+
+          //rating adjustment
+          duel_rating(duelists[socket.username], socket.username)
+            .then(function (data) {
+              console.log(data);
+              if (!data[2].includes("GUEST")) {
+                db.one("SELECT rating FROM reg_user WHERE user_name = $1", [
+                  data[2],
+                ])
+                  .then(function (data1) {
+                    db.none(
+                      "UPDATE reg_user SET rating = $1 WHERE user_name = $2",
+                      [data1.rating + Math.floor(25 * data[0]), data[2]]
+                    )
+                      .then(function (data2) {})
+                      .catch(function (error) {});
+                  })
+                  .catch(function (error) {});
+              }
+
+              if (!data[1].includes("GUEST")) {
+                db.one("SELECT rating FROM reg_user WHERE user_name = $1", [
+                  data[1],
+                ])
+                  .then(function (data1) {
+                    db.none(
+                      "UPDATE reg_user SET rating = $1 WHERE user_name = $2",
+                      [data1.rating - Math.floor((25 * data[0]) / 2), data[1]]
+                    )
+                      .then(function (data2) {})
+                      .catch(function (error) {});
+                  })
+                  .catch(function (error) {});
+              }
+            })
+            .catch(function (error) {});
+
           io.sockets.emit("results", [
             socket.username,
             duelists[socket.username],
