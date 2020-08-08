@@ -50,9 +50,27 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static("./public"));
 
+function user_num() {
+  return db
+    .one("SELECT COUNT(*) FROM reg_user")
+    .then(function (data) {
+      return data.count;
+    })
+    .catch(function (error) {});
+}
+
 //render views
+
 app.get("/leaderboards", function (req, res, next) {
-  res.render("leaderboards", { title: "Leaderboards" });
+  db.many(
+    "SELECT user_name, rating FROM reg_user ORDER BY rating DESC, user_name"
+  )
+    .then(function (data) {
+      res.render("leaderboards", {
+        results: data,
+      });
+    })
+    .catch(function (error) {});
 });
 
 app.get("/success", function (req, res, next) {
@@ -74,11 +92,6 @@ app.get("/", function (req, res, next) {
 
 const server = httpServer.listen(8080, function () {
   console.log("listening at :8080");
-  ngrok
-    .connect(8080, function (err, url) {
-      console.log(`Node.js local server is publicly-accessible at ${url}`);
-    })
-    .catch(function (error) {});
 });
 
 //rps handling
@@ -451,36 +464,27 @@ io.sockets.on("connection", function (socket) {
       });
   });
 
-  function user_num() {
-    return db
-      .one("SELECT COUNT(*) FROM reg_user")
-      .then(function (data) {
-        return data.count;
-      })
-      .catch(function (error) {});
-  }
-
-  //load leaderboard
-  socket.on("leaderboard", function (page) {
-    //return number of users
-    user_num()
-      .then(function (data) {
-        io.emit("num_pages", 1 + data / 20);
-      })
-      .catch(function (error) {});
-    //get all users and ratings
-    db.many(
-      "SELECT user_name, rating FROM reg_user ORDER BY rating DESC, user_name"
-    )
-      .then(function (data) {
-        if (data.length - 20 * (page - 1) > 20) {
-          io.emit("leaderboard-data", data.slice(0, 20));
-        } else {
-          io.emit("leaderboard-data", data.slice(20 * (page - 1), data.length));
-        }
-      })
-      .catch(function (error) {});
-  });
+  // //load leaderboard
+  // socket.on("leaderboard", function (page) {
+  //   //return number of users
+  //   user_num()
+  //     .then(function (data) {
+  //       io.emit("num_pages", 1 + data / 20);
+  //     })
+  //     .catch(function (error) {});
+  //   //get all users and ratings
+  //   db.many(
+  //     "SELECT user_name, rating FROM reg_user ORDER BY rating DESC, user_name"
+  //   )
+  //     .then(function (data) {
+  //       if (data.length - 20 * (page - 1) > 20) {
+  //         io.emit("leaderboard-data", data.slice(20 * (page - 1), 20 * page));
+  //       } else {
+  //         io.emit("leaderboard-data", data.slice(20 * (page - 1), data.length));
+  //       }
+  //     })
+  //     .catch(function (error) {});
+  // });
 
   //guest handling
   socket.on("guest", function (data) {

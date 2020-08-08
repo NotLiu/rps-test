@@ -104,6 +104,7 @@
   border-color: rgb(99, 99, 99);
   border-style: solid;
   height: 27rem;
+  overflow-y: auto;
 }
 
 #rps-options {
@@ -306,7 +307,7 @@
   padding: 2em 2em;
 
   width: 50%;
-  height: 600px;
+  padding-bottom: 0;
 }
 
 #leaderboard-type {

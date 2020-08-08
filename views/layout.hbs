@@ -44,7 +44,7 @@
 
 
   <script>
-    const socket = io("http://" + location.hostname + ":8080", { 'forceNew': true });
+    const socket = io("http://" + location.host, { 'forceNew': true });
 
     if (sessionStorage.sessionId != null) {
       document.getElementById('title').textContent = sessionStorage.user_Name;
