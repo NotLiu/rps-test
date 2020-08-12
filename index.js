@@ -249,7 +249,7 @@ io.sockets.on("connection", function (socket) {
     if (user[socket.username][1] != true) {
       io.emit(
         "chat_message",
-        "<strong>" + socket.username + " chose " + optionname + "!</strong>"
+        "<strong>" + socket.username + " has chosen!</strong>"
       );
 
       user[socket.username][1] = true;
@@ -376,7 +376,10 @@ io.sockets.on("connection", function (socket) {
               socket.username +
               "!</strong>"
           );
-          io.sockets.emit("results", "draw");
+          io.sockets.emit("results", [
+            duelists[socket.username],
+            socket.username,
+          ]);
         }
 
         //reset after comparing rps
